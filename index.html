@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para Tatiana</title>
+    <!-- Fuentes elegantes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Great+Vibes&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #ffffff; /* Fondo blanco */
+            color: #2b2b2b;
+            font-family: 'Cormorant Garamond', serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* --- PANTALLA DE BIENVENIDA / BOTÓN INICIO --- */
+        #introOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            transition: opacity 1s ease, visibility 1s ease;
+        }
+
+        .start-btn {
+            background: #ffffff;
+            color: #c1121f;
+            border: 2px solid #c1121f;
+            padding: 16px 45px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.4rem;
+            letter-spacing: 4px;
+            cursor: pointer;
+            border-radius: 30px;
+            box-shadow: 0 4px 15px rgba(193, 18, 31, 0.15);
+            transition: all 0.4s ease;
+            text-transform: uppercase;
+        }
+
+        .start-btn:hover {
+            background: #c1121f;
+            color: #ffffff;
+            box-shadow: 0 6px 20px rgba(193, 18, 31, 0.3);
+            transform: scale(1.05);
+        }
+
+        .hidden-overlay {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        /* --- CANVAS PARA LA LLUVIA DE PÉTALOS --- */
+        #petalsCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* --- CONTENEDOR PRINCIPAL --- */
+        .container {
+            position: relative;
+            z-index: 2;
+            max-width: 700px;
+            width: 90%;
+            margin: 40px auto;
+            text-align: center;
+            padding: 40px 25px;
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            backdrop-filter: blur(8px);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 1.2s ease 0.3s, transform 1.2s ease 0.3s;
+        }
+
+        .container.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Sección de la imagen del ramo */
+        .ramo-container {
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .ramo-img {
+            max-width: 320px;
+            width: 100%;
+            height: auto;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(193, 18, 31, 0.18);
+            transition: transform 0.5s ease;
+            object-fit: cover;
+        }
+
+        .ramo-img:hover {
+            transform: scale(1.02);
+        }
+
+        /* Texto de la dedicatoria */
+        .message-box {
+            line-height: 1.8;
+        }
+
+        .nombre {
+            font-family: 'Great Vibes', cursive;
+            font-size: 3.4rem;
+            color: #c1121f;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 8px rgba(193, 18, 31, 0.12);
+        }
+
+        .texto {
+            font-size: 1.45rem;
+            color: #333333;
+            font-weight: 400;
+            letter-spacing: 0.3px;
+        }
+
+        .fecha {
+            margin-top: 25px;
+            font-size: 1.4rem;
+            color: #c1121f;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        /* Audio oculto */
+        audio {
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .nombre { font-size: 2.7rem; }
+            .texto { font-size: 1.25rem; }
+            .fecha { font-size: 1.25rem; }
+            .ramo-img { max-width: 260px; }
+            .start-btn { font-size: 1.2rem; padding: 14px 35px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Pantalla de Inicio (Botón de Play) -->
+    <div id="introOverlay">
+        <button class="start-btn" id="startBtn">INICIO</button>
+    </div>
+
+    <!-- Canvas para los pétalos -->
+    <canvas id="petalsCanvas"></canvas>
+
+    <!-- Audio Oculto -->
+    <audio id="bgMusic" loop preload="auto">
+        <source src="Sakura.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Contenido Principal -->
+    <main class="container" id="mainContainer">
+
+        <!-- RAMO DE ROSAS -->
+        <div class="ramo-container">
+            <img src="tulipanes.jpeg"  class="ramo-img" id="ramoImage" onerror="tryOtherExtension(this)">
+        </div>
+
+        <!-- FRASE -->
+        <div class="message-box">
+            <h1 class="nombre">Tatiana:</h1>
+            <p class="texto">
+                A veces no nos detenemos a pensar en lo afortunados que somos al tener a personas que hacen la vida más bonita. 
+                Gracias por tu amistad, por tu luz y por coincidir conmigo.
+            </p>
+            <p class="fecha">¡Espero que estas flores te saquen una sonrisa hoy!</p>
+        </div>
+
+    </main>
+
+    <script>
+        const startBtn = document.getElementById('startBtn');
+        const introOverlay = document.getElementById('introOverlay');
+        const mainContainer = document.getElementById('mainContainer');
+        const music = document.getElementById('bgMusic');
+
+        // Acción al hacer clic en INICIO
+        startBtn.addEventListener('click', () => {
+            music.play().catch(e => console.log("Error al reproducir audio:", e));
+            introOverlay.classList.add('hidden-overlay');
+            mainContainer.classList.add('show');
+        });
+
+        // Intentar formatos de imagen por si la extensión varía
+        function tryOtherExtension(img) {
+            if (img.src.endsWith('.jpg')) {
+                img.src = 'ramo.png';
+            } else if (img.src.endsWith('.png')) {
+                img.src = 'ramo.jpeg';
+            } else if (img.src.endsWith('.jpeg')) {
+                img.src = 'ramo.webp';
+            }
+        }
+
+        // --- ANIMACIÓN DE PÉTALOS ---
+        const canvas = document.getElementById('petalsCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        });
+
+        class Petal {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * -height;
+                this.size = Math.random() * 12 + 8;
+                this.speedY = Math.random() * 1.2 + 0.6;
+                this.speedX = Math.random() * 0.8 - 0.4;
+                this.angle = Math.random() * Math.PI * 2;
+                this.angularSpeed = (Math.random() - 0.5) * 0.02;
+                this.opacity = Math.random() * 0.6 + 0.4;
+                const redShades = ['#d62828', '#e63946', '#9e2a2b', '#b7094c'];
+                this.color = redShades[Math.floor(Math.random() * redShades.length)];
+            }
+
+            update() {
+                this.y += this.speedY;
+                this.x += Math.sin(this.y * 0.01) + this.speedX;
+                this.angle += this.angularSpeed;
+
+                if (this.y > height + 20) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.angle);
+                ctx.globalAlpha = this.opacity;
+                ctx.fillStyle = this.color;
+
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.bezierCurveTo(-this.size / 2, -this.size / 2, -this.size, this.size / 3, 0, this.size);
+                ctx.bezierCurveTo(this.size, this.size / 3, this.size / 2, -this.size / 2, 0, 0);
+                ctx.fill();
+
+                ctx.restore();
+            }
+        }
+
+        const petals = Array.from({ length: 45 }, () => new Petal());
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            petals.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
